@@ -1,0 +1,28 @@
+{
+  "name": "pedometer",
+  "version": "0.0.1",
+  "description": "Javascript implementation of a pedometer",
+  "license": "MIT",
+  "homepage": "https://github.com/MaximilianBuegler/node-pedometer",
+  "repository": "MaximilianBuegler/node-pedometer",
+  "contributors": [
+    "Maximilian Buegler <max@maxbuegler.eu> (http://www.maxbuegler.eu/)"
+  ],
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "pedometer.js",
+    "src",
+    "test"
+  ],
+  "keywords": [
+    "pedometer",
+    "stepcounter"
+  ],
+  "dependencies": {
+    "synaptic": "^1.0.8"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}

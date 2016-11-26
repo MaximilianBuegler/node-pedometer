@@ -40,24 +40,21 @@ for (var i=0;i<nostepdata.length;i++){
 }
 
 
-var Neuron = synaptic.Neuron,
-    Layer = synaptic.Layer,
-    Network = synaptic.Network,
-    Trainer = synaptic.Trainer,
+var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
 var myPerceptron = new Architect.Perceptron(inputsize, 10, 1);
 var trainer = new Trainer(myPerceptron);
 
 
 trainer.train(set,{
-    rate: .0001,
+    rate: 0.0001,
     iterations: 10000,
-    error: .00001,
+    error: 0.00001,
     shuffle: true,
     log: 10,
     cost: Trainer.cost.MSE,
     crossValidate: {
-        testSize: .1
+        testSize: 0.1
     }
 });
 //myPerceptron.optimize();

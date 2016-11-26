@@ -1,11 +1,7 @@
 var parse = require('csv-parse/lib/sync');
 var fs = require('fs');
-
-var neuron = synaptic.Neuron,
-    layer = synaptic.Layer,
-    network = synaptic.Network,
-    trainer = synaptic.Trainer,
-    architect = synaptic.Architect;
+var synaptic = require('synaptic');
+var network = synaptic.Network;
 
 
 var neuralnetwork=network.fromJSON(JSON.parse(fs.readFileSync('./data/neuralnetwork.json','utf8')));
@@ -21,5 +17,5 @@ var i=100;
         //Linear interpolation
         inputdata[j]=stepdata[i][Math.floor(scaledPosition)]*(1-(scaledPosition%1))+stepdata[i][Math.ceil(scaledPosition)]*(scaledPosition%1);
     }
-console.log(inputdata);
+//console.log(inputdata);
 console.log(neuralnetwork.activate(inputdata));

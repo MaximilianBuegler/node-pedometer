@@ -20,6 +20,9 @@
     "stepcounter"
   ],
   "dependencies": {
+    "autocorrelation": "github:maximilianbuegler/node-autocorrelation",
+    "fft-js": "github:maximilianbuegler/node-fft",
+    "github": "^6.1.0",
     "synaptic": "^1.0.8"
   },
   "scripts": {

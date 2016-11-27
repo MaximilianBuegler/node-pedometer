@@ -22,6 +22,7 @@
   "dependencies": {
     "autocorrelation": "github:maximilianbuegler/node-autocorrelation",
     "fft-js": "github:maximilianbuegler/node-fft",
+    "filters": "github:maximilianbuegler/node-filters",
     "github": "^6.1.0",
     "synaptic": "^1.0.8"
   },

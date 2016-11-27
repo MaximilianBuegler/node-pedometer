@@ -19,7 +19,7 @@ var config={
     windowTime: 3,
     windowStep: 0.5,
     minStepTime: 0.4,
-    maxStepTime: 1,
+    maxStepTime: 2,
     autocorrelationThreshold: 0.6,
     neuralnetworkInputSize: neuralnetwork.inputs()
 };
@@ -58,7 +58,7 @@ module.exports = {
         
         var windowedClassification=[[0,0]];
         
-        var l=0;
+        //var l=0;
         for (i=1;i<verticalComponent.length-taoMin; i++){
             windowedClassification[i]=[i,0];
             //if i is a local minimum
@@ -115,7 +115,7 @@ module.exports = {
 
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataHike.csv','utf8');
+var stepdata=fs.readFileSync('./test/DataRandom.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){
@@ -123,6 +123,8 @@ for (var i=0;i<hikedata.length;i++){
     att[i]=[hikedata[i][4], -hikedata[i][5],hikedata[i][3]];
     
 }
-var average=require('filters').average;
+var average=require('filters').average2D;
+acc=average(acc,5);
+att=average(att,5);
 
 module.exports.pedometer(acc,att,100);

@@ -81,7 +81,7 @@ module.exports = {
                         var activation=neuralnetwork.activate(inputdata);
                         
                         //Save result
-                        windowedClassification[i]=[i, activation];
+                        windowedClassification[i]=[i, activation-0.5];
                         
                         //If result is positive, we do not need to look for another step in the interval.
                         if (activation>0.9){
@@ -115,7 +115,7 @@ module.exports = {
 
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataRandom.csv','utf8');
+var stepdata=fs.readFileSync('./test/DataTest1.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){

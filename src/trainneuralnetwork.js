@@ -12,7 +12,7 @@ nostepdata=parse(nostepdata, {trim: true, auto_parse: true,relax_column_count:tr
 
 var set=[];
 
-var inputsize=40;
+var inputsize=20;
 
 var setcounter=0;
 for (var i=0;i<stepdata.length;i++){
@@ -47,7 +47,7 @@ for (var i=0;i<nostepdata.length;i++){
 
 var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(inputsize, 5,5, 1);
+var myPerceptron = new Architect.Perceptron(inputsize, 10, 1);
 var trainer = new Trainer(myPerceptron);
 
 function shuffle(o) { //v1.0
@@ -59,16 +59,18 @@ shuffle(set);
 
 trainer.train(set,{
     rate: 0.001,
-    iterations: 50000,
+    iterations: 5000,
     error: 0.0005,
     shuffle: true,
     log: 10,
     cost: Trainer.cost.MSE,
     crossValidate: {
-        testSize: 0.5
+        testSize: 0.4
     }
 });
+
+
 //myPerceptron.optimize();
 fs.writeFileSync('./data/neuralnetwork.json',JSON.stringify(myPerceptron.toJSON()),'utf8');
 
-console.log('trained with '+set.length+' samples');
+console.log('trained with '+set.length+' samples. Final test MSE: '+trainer.test(set).error);

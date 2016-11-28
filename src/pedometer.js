@@ -124,7 +124,7 @@ for (var i=0;i<hikedata.length;i++){
     
 }
 var average=require('filters').average2D;
-acc=average(acc,5);
-att=average(att,5);
+acc=average(acc,3);
+att=average(att,3);
 
 module.exports.pedometer(acc,att,100);

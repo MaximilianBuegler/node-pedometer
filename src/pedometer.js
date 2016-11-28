@@ -81,7 +81,7 @@ module.exports = {
                         var activation=neuralnetwork.activate(inputdata);
                         
                         //Save result
-                        windowedClassification[i]=[i, Math.round(activation)];
+                        windowedClassification[i]=[i, activation];
                         
                         //If result is positive, we do not need to look for another step in the interval.
                         if (activation>0.9){

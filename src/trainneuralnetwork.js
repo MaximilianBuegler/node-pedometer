@@ -47,9 +47,9 @@ var trainer = new Trainer(myPerceptron);
 
 
 trainer.train(set,{
-    rate: 0.0001,
-    iterations: 10000,
-    error: 0.00001,
+    rate: 0.001,
+    iterations: 50000,
+    error: 0.005,
     shuffle: true,
     log: 10,
     cost: Trainer.cost.MSE,
@@ -59,3 +59,5 @@ trainer.train(set,{
 });
 //myPerceptron.optimize();
 fs.writeFileSync('./data/neuralnetwork.json',JSON.stringify(myPerceptron.toJSON()),'utf8');
+
+console.log('trained with '+set.length+' samples');

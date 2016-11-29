@@ -24,6 +24,7 @@
     "fft-js": "github:maximilianbuegler/node-fft",
     "filters": "github:maximilianbuegler/node-filters",
     "github": "^6.1.0",
+    "stats-lite": "^2.0.3",
     "synaptic": "^1.0.8"
   },
   "scripts": {

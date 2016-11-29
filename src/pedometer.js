@@ -13,7 +13,7 @@ var network = require('synaptic').Network;
 var extractVerticalComponent = require('kinetics').extractVerticalComponent;
 var autocorrelation = require('autocorrelation').autocorrelation;
 var neuralnetwork=network.fromJSON(JSON.parse(fs.readFileSync('./data/neuralnetwork.json','utf8')));
-
+var stats = require("stats-lite");
 
 var config={
     windowTime: 3,
@@ -58,6 +58,8 @@ module.exports = {
         
         var windowedClassification=[[0,0]];
         
+        var inputsize=config.neuralnetworkInputSize-4;
+        
         //var l=0;
         for (i=1;i<verticalComponent.length-taoMin; i++){
             windowedClassification[i]=[i,0];
@@ -68,14 +70,25 @@ module.exports = {
                 for (j=i+taoMin;j<=i+taoMax && j+1<verticalComponent.length;j++){
                     if (verticalComponent[j]<=verticalComponent[j-1] && verticalComponent[i]<verticalComponent[j+1]){
 
-                        //Transform candidate step to neural network
+                        var stepdata=verticalComponent.slice(i,j);
+                    
+                        
+                    
                         var inputdata=[];
-                        for (k=0;k<config.neuralnetworkInputSize;k++){
-                            var scaledPosition=i+(k*(j-i)/config.neuralnetworkInputSize);
+                        for (k=0;k<inputsize;k++){
+                            var scaledPosition=k*stepdata.length/inputsize;
                             //Linear interpolation
-                            inputdata[k]=verticalComponent[Math.floor(scaledPosition)]*(1-(scaledPosition%1))+verticalComponent[Math.ceil(scaledPosition)]*(scaledPosition%1);
-                            
+                            inputdata[k]=stepdata[Math.floor(scaledPosition)]*(1-(scaledPosition%1))+stepdata[Math.ceil(scaledPosition)]*(scaledPosition%1);
                         }
+                        inputdata[inputsize]=stats.mean(stepdata);
+                        inputdata[inputsize+1]=stats.median(stepdata);
+                        inputdata[inputsize+2]=stats.variance(stepdata);
+/*                        inputdata[inputsize+3]=stats.percentile(stepdata,0.9);
+                        inputdata[inputsize+4]=stats.percentile(stepdata,0.8);
+                        inputdata[inputsize+5]=stats.percentile(stepdata,0.7);
+                        inputdata[inputsize+6]=stats.percentile(stepdata,0.6);
+                        inputdata[inputsize+7]=stats.percentile(stepdata,0.5);*/
+                        inputdata[inputsize+3]=stepdata.length;
                         
                         //Input candidate to network
                         var activation=neuralnetwork.activate(inputdata);
@@ -115,7 +128,7 @@ module.exports = {
 
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataTest1.csv','utf8');
+var stepdata=fs.readFileSync('./test/DataTest4.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){
@@ -124,7 +137,7 @@ for (var i=0;i<hikedata.length;i++){
     
 }
 var average=require('filters').average2D;
-acc=average(acc,3);
-att=average(att,3);
+//acc=average(acc,3);
+//att=average(att,3);
 
 module.exports.pedometer(acc,att,100);

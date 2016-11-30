@@ -14,6 +14,7 @@ var extractVerticalComponent = require('kinetics').extractVerticalComponent;
 var autocorrelation = require('autocorrelation').autocorrelation;
 var neuralnetwork=network.fromJSON(JSON.parse(fs.readFileSync('./data/neuralnetwork.json','utf8')));
 var stats = require("stats-lite");
+var fft = require('fft-js').fft;
 
 var config={
     windowTime: 3,
@@ -58,7 +59,7 @@ module.exports = {
         
         var windowedClassification=[[0,0]];
         
-        var inputsize=config.neuralnetworkInputSize-4;
+        var signalLength=(config.neuralnetworkInputSize-4)/1.5;
         
         //var l=0;
         for (i=1;i<verticalComponent.length-taoMin; i++){
@@ -75,20 +76,27 @@ module.exports = {
                         
                     
                         var inputdata=[];
-                        for (k=0;k<inputsize;k++){
-                            var scaledPosition=k*stepdata.length/inputsize;
+                        for (k=0;k<signalLength;k++){
+                            var scaledPosition=k*stepdata.length/signalLength;
                             //Linear interpolation
                             inputdata[k]=stepdata[Math.floor(scaledPosition)]*(1-(scaledPosition%1))+stepdata[Math.ceil(scaledPosition)]*(scaledPosition%1);
                         }
-                        inputdata[inputsize]=stats.mean(stepdata);
-                        inputdata[inputsize+1]=stats.median(stepdata);
-                        inputdata[inputsize+2]=stats.variance(stepdata);
+
+                        var freq=fft(inputdata);
+                        for (k=0;k<signalLength/2;k++){
+                            inputdata[signalLength+k]=Math.pow(freq[k][0],2)+Math.pow(freq[k][1],2);
+                        }
+                        
+                        
+                        inputdata[1.5*signalLength]=stats.mean(stepdata);
+                        inputdata[1.5*signalLength+1]=stats.median(stepdata);
+                        inputdata[1.5*signalLength+2]=stats.variance(stepdata);
 /*                        inputdata[inputsize+3]=stats.percentile(stepdata,0.9);
                         inputdata[inputsize+4]=stats.percentile(stepdata,0.8);
                         inputdata[inputsize+5]=stats.percentile(stepdata,0.7);
                         inputdata[inputsize+6]=stats.percentile(stepdata,0.6);
                         inputdata[inputsize+7]=stats.percentile(stepdata,0.5);*/
-                        inputdata[inputsize+3]=stepdata.length;
+                        inputdata[1.5*signalLength+3]=stepdata.length;
                         
                         //Input candidate to network
                         var activation=neuralnetwork.activate(inputdata);

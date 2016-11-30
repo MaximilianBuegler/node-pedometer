@@ -82,7 +82,7 @@ for (var i=0;i<nostepdata.length;i++){
 
 var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(1.5*signalLength+4, 20, 1);
+var myPerceptron = new Architect.Perceptron(1.5*signalLength+4, 10, 1);
 var trainer = new Trainer(myPerceptron);
 
 function shuffle(o) { //v1.0

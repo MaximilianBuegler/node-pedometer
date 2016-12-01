@@ -32,14 +32,8 @@ for (var i=0;i<stepdata.length;i++){
         }
         
         inputdata[1.5*signalLength]=stats.mean(stepdata[i]);
-        inputdata[1.5*signalLength+1]=stats.median(stepdata[i]);
-        inputdata[1.5*signalLength+2]=stats.variance(stepdata[i]);
-        /*inputdata[inputsize+3]=stats.percentile(stepdata[i],0.9);
-        inputdata[inputsize+4]=stats.percentile(stepdata[i],0.8);
-        inputdata[inputsize+5]=stats.percentile(stepdata[i],0.7);
-        inputdata[inputsize+6]=stats.percentile(stepdata[i],0.6);
-        inputdata[inputsize+7]=stats.percentile(stepdata[i],0.5);*/
-        inputdata[1.5*signalLength+3]=stepdata[i].length;
+        inputdata[1.5*signalLength+1]=stats.variance(stepdata[i]);
+        inputdata[1.5*signalLength+2]=stepdata[i].length;
         //console.log(inputdata);
         set[setcounter++]={
             input:inputdata,
@@ -63,14 +57,8 @@ for (var i=0;i<nostepdata.length;i++){
 
         
         inputdata[1.5*signalLength]=stats.mean(nostepdata[i]);
-        inputdata[1.5*signalLength+1]=stats.median(nostepdata[i]);
-        inputdata[1.5*signalLength+2]=stats.variance(nostepdata[i]);
-/*        inputdata[inputsize+3]=stats.percentile(nostepdata[i],0.9);
-        inputdata[inputsize+4]=stats.percentile(nostepdata[i],0.8);
-        inputdata[inputsize+5]=stats.percentile(nostepdata[i],0.7);
-        inputdata[inputsize+6]=stats.percentile(nostepdata[i],0.6);
-        inputdata[inputsize+7]=stats.percentile(nostepdata[i],0.5);*/
-        inputdata[1.5*signalLength+3]=nostepdata[i].length;
+        inputdata[1.5*signalLength+1]=stats.variance(nostepdata[i]);
+        inputdata[1.5*signalLength+2]=nostepdata[i].length;
         //console.log(inputdata);
         set[setcounter++]={
             input:inputdata,
@@ -82,7 +70,7 @@ for (var i=0;i<nostepdata.length;i++){
 
 var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(1.5*signalLength+4, 10, 1);
+var myPerceptron = new Architect.Perceptron(1.5*signalLength+3, 20,10, 1);
 var trainer = new Trainer(myPerceptron);
 
 function shuffle(o) { //v1.0
@@ -94,7 +82,7 @@ shuffle(set);
 
 trainer.train(set,{
     rate: 0.001,
-    iterations: 50000,
+    iterations: set.length*2,
     error: 0.01,
     shuffle: true,
     log: 10,

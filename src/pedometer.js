@@ -59,11 +59,16 @@ module.exports = {
         
         var windowedClassification=[[0,0]];
         
-        var signalLength=(config.neuralnetworkInputSize-4)/1.5;
+        var signalLength=(config.neuralnetworkInputSize-3)/1.5;
         
         //var l=0;
         for (i=1;i<verticalComponent.length-taoMin; i++){
-            windowedClassification[i]=[i,0];
+            if(typeof windowedClassification[i] === 'undefined') {
+                windowedClassification[i]=[i,0];
+            }
+
+
+            
             //if i is a local minimum
             if (verticalComponent[i]<=verticalComponent[i-1] && verticalComponent[i]<verticalComponent[i+1]){
                 
@@ -89,20 +94,15 @@ module.exports = {
                         
                         
                         inputdata[1.5*signalLength]=stats.mean(stepdata);
-                        inputdata[1.5*signalLength+1]=stats.median(stepdata);
-                        inputdata[1.5*signalLength+2]=stats.variance(stepdata);
-/*                        inputdata[inputsize+3]=stats.percentile(stepdata,0.9);
-                        inputdata[inputsize+4]=stats.percentile(stepdata,0.8);
-                        inputdata[inputsize+5]=stats.percentile(stepdata,0.7);
-                        inputdata[inputsize+6]=stats.percentile(stepdata,0.6);
-                        inputdata[inputsize+7]=stats.percentile(stepdata,0.5);*/
-                        inputdata[1.5*signalLength+3]=stepdata.length;
+                        inputdata[1.5*signalLength+1]=stats.variance(stepdata);
+                        inputdata[1.5*signalLength+2]=stepdata.length;
                         
                         //Input candidate to network
                         var activation=neuralnetwork.activate(inputdata);
                         
                         //Save result
-                        windowedClassification[i]=[i, activation-0.5];
+                        for (k=i;k<j;k++)
+                            windowedClassification[k]=[k, activation];
                         
                         //If result is positive, we do not need to look for another step in the interval.
                         if (activation>0.9){
@@ -136,7 +136,7 @@ module.exports = {
 
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataTest1.csv','utf8');
+var stepdata=fs.readFileSync('./test/DataTest2.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){

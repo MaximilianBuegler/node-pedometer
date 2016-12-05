@@ -1,17 +1,16 @@
 var synaptic = require('synaptic');
 var parse = require('csv-parse/lib/sync');
 var fs = require('fs');
-var stats = require('stats-lite');
 var fft = require('fft-js').fft;
 var kinetics = require('kinetics');
 var autocorrelation = require('autocorrelation').autocorrelation;
 
 /**
- * Based on Zhang, S., Rowlands, A. V., Murray, P., & Hurst, T. L. (2012). Physical activity classification using the GENEA wrist-worn accelerometer. Medicine and Science in Sports and Exercise, 44(4), 742–748. https://doi.org/10.1249/MSS.0b013e31823bf95c
+ * Based on Zhang, S., Rowlands, A. V., Murray, P., & Hurst, T. L. (2012). Physical activity classification using the GENEA wrist-worn accelerometer. Medicine and Science in Sports and Exercise, 44(4), 742-748. https://doi.org/10.1249/MSS.0b013e31823bf95c
  * Zhang uses a 128 samples window at a sampling rate of 10Hz, hence 12.8 seconds, as we have 100Hz, and powers of 2 are computationally more efficient for the algorithm, we use a window of 1024 samples, hence 10,24 seconds.
  **/
 var timeWindow=512; //Must be power of 2
-var timeStep=128; //Stepsize in samples of window to be slided along signal
+var timeStep=64; //Stepsize in samples of window to be slided along signal
 var fftPeakCount=5; //Number of dominant frequencies to take into account
 var autocorrelationPeakCount=5;
 var binCount=10; //Bins according to Kwapisz, et al 2011
@@ -22,7 +21,7 @@ var taoMax=2.0;
 
 
 function getFFTPeaks(segment,fftPeakCount,samplingRate){
-    var i,j,k;
+    var i,j;
     var n=segment.length;
     var res={
         fftPeaksMagnitude:[],
@@ -51,7 +50,7 @@ function getFFTPeaks(segment,fftPeakCount,samplingRate){
 }
 
 function getAutocorrelationPeaks(segment,autocorrelationPeakCount,samplingRate){
-    var i,j,k;
+    var i,j;
     var res={
         autocorrelationValues:[],
         autocorrelationPeaks:[]
@@ -93,18 +92,29 @@ function getMetrics(segment, samplingRate){
         autocorrelationPeaks:[],
         autocorrelationValues:[]
         };
-    var i,j,k, bin;
+    var i, bin;
     
-    var n=segment.length;
+    var n=segment.length;    
     
-    var acc=[];
-    var att=[];
-    for (i=0;i<n;i++){
-        acc[i]=segment[i].slice(0,3);
-        att[i]=[segment[i][4], -segment[i][5],segment[i][3]];
+    if(segment[0].length==4){
+        for (i=0;i<n;i++){
+            segment[i]=segment[i].slice(1,4);
+        }
     }
-    segment=kinetics.rotateSignal(acc,att);
-    
+    else if(segment[0].length==3){
+        for (i=0;i<n;i++){
+            segment[i]=segment[i];
+        }
+    }
+    else{
+        var acc=[];
+        var att=[];
+        for (i=0;i<n;i++){
+            acc[i]=segment[i].slice(0,3);
+            att[i]=[segment[i][4], -segment[i][5],segment[i][3]];
+        }
+        segment=kinetics.rotateSignal(acc,att);
+    }
     
     
     for (i=0;i<n;i++){
@@ -246,15 +256,30 @@ walkingdata[6]=fs.readFileSync('./data/DataLiving6.csv','utf8');
 var negativeCounter=0,positiveCounter=0;
 
 for (i=0;i<walkingdata.length;i++){
+    console.log('Walking File '+i);
     walkingdata[i]=parse(walkingdata[i], {trim: true, auto_parse: true });
     
     for (offset=0;offset<walkingdata[i].length-timeWindow;offset+=timeStep){
         segment=walkingdata[i].slice(offset,offset+timeWindow);
+
         
   
         set[setcounter++]=generateDataForSegment(segment, 1, 100);
         positiveCounter++;
     }
+}
+
+var onlineData=[];
+for (i=0;i<22;i++){
+    console.log('Online File '+i);
+    onlineData[i]=parse(fs.readFileSync('./data/Online/'+(i+1)+'.csv','utf8'), {trim: true, auto_parse: true });
+    for (offset=0;offset<onlineData[i].length-timeWindow-100;offset+=timeStep){
+        segment=onlineData[i].slice(offset,offset+timeWindow);
+        
+        
+        set[setcounter++]=generateDataForSegment(segment, 1, 33);
+        positiveCounter++;
+    }    
 }
 
 var notWalkingData=[];
@@ -264,6 +289,7 @@ notWalkingData[1]=fs.readFileSync('./data/DataNoise2.csv','utf8');
 
 
 for (i=0;i<notWalkingData.length;i++){
+    console.log('Not Walking File '+i);
     notWalkingData[i]=parse(notWalkingData[i], {trim: true, auto_parse: true });
     
     for (offset=0;offset<notWalkingData[i].length-timeWindow;offset+=timeStep){
@@ -274,6 +300,21 @@ for (i=0;i<notWalkingData.length;i++){
         negativeCounter++;
     }
 }
+
+var negativeOnlineData=[];
+for (i=0;i<595;i++){
+    console.log('Not Walking Online File '+i);
+    negativeOnlineData[i]=parse(fs.readFileSync('./data/Online/HMP_Processed/'+(i+1)+'.csv','utf8'), {trim: true, auto_parse: true });
+    for (offset=0;offset<negativeOnlineData[i].length-timeWindow;offset+=timeStep){
+        segment=negativeOnlineData[i].slice(offset,offset+timeWindow);
+        
+        
+        set[setcounter++]=generateDataForSegment(segment, 0, 32);
+        negativeCounter++;
+    }    
+}
+
+
 //set=JSON.parse(fs.readFileSync('./data/inputdata.json','utf8'));
 
 
@@ -283,11 +324,11 @@ console.log(inputs+" inputs "+positiveCounter+" positive samples and "+negativeC
 
 var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(inputs, 10, 1);
+var myPerceptron = new Architect.Perceptron(inputs, 20,5, 1);
 var trainer = new Trainer(myPerceptron);
 
 
-fs.writeFileSync("/tmp/inputdata.json",JSON.stringify(set));
+fs.writeFileSync("./data/maximalWindowedInputData.json",JSON.stringify(set));
 
 function shuffle(o) { //v1.0
   for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
@@ -298,8 +339,8 @@ shuffle(set);
 
 trainer.train(set,{
     rate: 0.001,
-    iterations: 10000,//set.length*20,
-    error: 0.01,
+    iterations: 100000,//set.length*20,
+    error: 0.001,
     shuffle: true,
     log: 10,
     cost: Trainer.cost.MSE,
@@ -318,6 +359,6 @@ trainer.train(set,{
         },*/
 
 //myPerceptron.optimize();
-fs.writeFileSync('./data/neuralnetworkWindowed.json',JSON.stringify(myPerceptron.toJSON()),'utf8');
+fs.writeFileSync('./data/neuralnetworkWindowed3.json',JSON.stringify(myPerceptron.toJSON()),'utf8');
 
 console.log('trained with '+set.length+' samples. Final test MSE: '+trainer.test(set).error);

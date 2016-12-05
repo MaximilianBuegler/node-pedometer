@@ -134,9 +134,43 @@ module.exports = {
 
 };
 
+function average2D(arr, wl) {
+    function average(arr) {
+        var acc = [];
+        var i,j;
+        for (j = 0; j < arr[0].length; j++) {
+            acc[j]=0;
+        }
+        for (i = 0; i < arr.length; i++) {
+            for (j = 0; j < arr[i].length; j++) {
+                acc[j] += arr[i][j];
+            }
+        }
+        for (j = 0; j < arr[0].length; j++) {
+            acc[j]/=arr.length;
+        }
+        return acc;
+    }
+
+    wl = wl || 3;
+
+    var w = [];
+    var f = [];
+    for (var i = 0; i < arr.length; i++) 
+    {
+        if (w.length >= wl)
+            w.shift();
+
+        w.push(arr[i]);
+
+        f.push(average(w));
+    }
+
+    return f;
+}
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataTest3.csv','utf8');
+var stepdata=fs.readFileSync('./test/DataNoise1.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){
@@ -144,8 +178,8 @@ for (var i=0;i<hikedata.length;i++){
     att[i]=[hikedata[i][4], -hikedata[i][5],hikedata[i][3]];
     
 }
-var average=require('filters').average2D;
-//acc=average(acc,3);
-//att=average(att,3);
+
+//acc=average2D(acc,3);
+//att=average2D(att,3);
 
 module.exports.pedometer(acc,att,100);

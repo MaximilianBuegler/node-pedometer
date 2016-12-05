@@ -8,7 +8,7 @@ var stepdata=fs.readFileSync('./data/stepsCombo.csv','utf8');
 stepdata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 
 
-var nostepdata=fs.readFileSync('./data/noStepsCombo.csv','utf8');
+var nostepdata=fs.readFileSync('./data/noStepsCombo2.csv','utf8');
 nostepdata=parse(nostepdata, {trim: true, auto_parse: true,relax_column_count:true });
 
 
@@ -70,7 +70,7 @@ for (var i=0;i<nostepdata.length;i++){
 
 var Trainer = synaptic.Trainer,
     Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(1.5*signalLength+3, 20,10, 1);
+var myPerceptron = new Architect.Perceptron(1.5*signalLength+3, 10,5, 1);
 var trainer = new Trainer(myPerceptron);
 
 function shuffle(o) { //v1.0
@@ -82,11 +82,18 @@ shuffle(set);
 
 trainer.train(set,{
     rate: 0.001,
-    iterations: set.length*2,
+    iterations: set.length*20,
     error: 0.01,
     shuffle: true,
     log: 10,
-    cost: Trainer.cost.MSE,
+    cost: function(targetValues, outputValues){
+        if (targetValues[0]==0){
+            if (outputValues[0]>0)
+                return outputValues[0]*100;
+            return Math.abs(outputValues[0]);
+        }
+        return Math.abs(1-outputValues[0]);
+        },//Trainer.cost.MSE,
     crossValidate: {
         testSize: 0.4
     }

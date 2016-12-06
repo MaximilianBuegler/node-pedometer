@@ -1,4 +1,4 @@
-var synaptic = require('synaptic');
+var network = require('synaptic').Network;
 var parse = require('csv-parse/lib/sync');
 var fs = require('fs');
 var fft = require('fft-js').fft;
@@ -10,7 +10,7 @@ var autocorrelation = require('autocorrelation').autocorrelation;
  * Zhang uses a 128 samples window at a sampling rate of 10Hz, hence 12.8 seconds, as we have 100Hz, and powers of 2 are computationally more efficient for the algorithm, we use a window of 1024 samples, hence 10,24 seconds.
  **/
 var timeWindow=512; //Must be power of 2
-var timeStep=64; //Stepsize in samples of window to be slided along signal
+var timeStep=16; //Stepsize in samples of window to be slided along signal
 var fftPeakCount=5; //Number of dominant frequencies to take into account
 var autocorrelationPeakCount=5;
 var binCount=10; //Bins according to Kwapisz, et al 2011
@@ -94,27 +94,16 @@ function getMetrics(segment, samplingRate){
         };
     var i, bin;
     
-    var n=segment.length;    
+    var n=segment.length;
     
-    if(segment[0].length==4){
-        for (i=0;i<n;i++){
-            segment[i]=segment[i].slice(1,4);
-        }
+    var acc=[];
+    var att=[];
+    for (i=0;i<n;i++){
+        acc[i]=segment[i].slice(0,3);
+        att[i]=[segment[i][4], -segment[i][5],segment[i][3]];
     }
-    else if(segment[0].length==3){
-        for (i=0;i<n;i++){
-            segment[i]=segment[i];
-        }
-    }
-    else{
-        var acc=[];
-        var att=[];
-        for (i=0;i<n;i++){
-            acc[i]=segment[i].slice(0,3);
-            att[i]=[segment[i][4], -segment[i][5],segment[i][3]];
-        }
-        segment=kinetics.rotateSignal(acc,att);
-    }
+    segment=kinetics.rotateSignal(acc,att);
+    
     
     
     for (i=0;i<n;i++){
@@ -197,7 +186,7 @@ function getMetrics(segment, samplingRate){
     return res;
 }
 
-function generateDataForSegment(segment, target, Samplingrate){
+function generateDataForSegment(segment, Samplingrate){
        /**
          * Based on Kwapisz, J. R., Weiss, G. M., & Moore, S. a. (2011). Activity recognition using cell phone accelerometers. ACM SIGKDD Explorations Newsletter, 12(2), 74. https://doi.org/10.1145/1964897.1964918, J. R., Weiss, G. M., & Moore, S. a. (2011). Activity recognition using cell phone accelerometers. ACM SIGKDD Explorations Newsletter, 12(2), 74. https://doi.org/10.1145/1964897.1964918
          * Kwapisz uses the time window prposed by Zhang and provides a list of features. 
@@ -233,132 +222,45 @@ function generateDataForSegment(segment, target, Samplingrate){
             }
         }
         //console.log(inputdata);
-        return {
-            input:inputdata,
-            output:[target]
-        };
+        return inputdata;
         
 }
 
-var set=[];
-var setcounter=0;
+var neuralnetwork=network.fromJSON(JSON.parse(fs.readFileSync('./data/neuralnetworkWindowed3.json','utf8')));
+
 var offset,segment;
 
-var walkingdata=[];
-walkingdata[0]=fs.readFileSync('./data/DataHike.csv','utf8');
-walkingdata[1]=fs.readFileSync('./data/DataLiving1.csv','utf8');
-walkingdata[2]=fs.readFileSync('./data/DataLiving2.csv','utf8');
-walkingdata[3]=fs.readFileSync('./data/DataLiving3.csv','utf8');
-walkingdata[4]=fs.readFileSync('./data/DataLiving4.csv','utf8');
-walkingdata[5]=fs.readFileSync('./data/DataLiving5.csv','utf8');
-walkingdata[6]=fs.readFileSync('./data/DataLiving6.csv','utf8');
+var walkingdata=parse(fs.readFileSync('./data/DataByTheFrog.csv','utf8'), {trim: true, auto_parse: true });
 
-var negativeCounter=0,positiveCounter=0;
+var res=[];
+var inputData=[];
 
-for (i=0;i<walkingdata.length;i++){
-    console.log('Walking File '+i);
-    walkingdata[i]=parse(walkingdata[i], {trim: true, auto_parse: true });
+for (offset=0;offset<walkingdata.length-timeWindow;offset+=timeStep){
+    segment=walkingdata.slice(offset,offset+timeWindow);
+ 
+    var input=generateDataForSegment(segment, 100);
+    var activation=neuralnetwork.activate(input);
     
-    for (offset=0;offset<walkingdata[i].length-timeWindow;offset+=timeStep){
-        segment=walkingdata[i].slice(offset,offset+timeWindow);
-
-        
-  
-        set[setcounter++]=generateDataForSegment(segment, 1, 100);
-        positiveCounter++;
-    }
-}
-
-/*var onlineData=[];
-for (i=0;i<22;i++){
-    console.log('Walking Online File '+i);
-    onlineData[i]=parse(fs.readFileSync('./data/Online/'+(i+1)+'.csv','utf8'), {trim: true, auto_parse: true });
-    for (offset=0;offset<onlineData[i].length-timeWindow-100;offset+=timeStep){
-        segment=onlineData[i].slice(offset,offset+timeWindow);
-        
-        
-        set[setcounter++]=generateDataForSegment(segment, 1, 33);
-        positiveCounter++;
-    }    
-}*/
-
-var notWalkingData=[];
-notWalkingData[0]=fs.readFileSync('./data/DataNoise1.csv','utf8');
-notWalkingData[1]=fs.readFileSync('./data/DataNoise2.csv','utf8');
-
-
-
-for (i=0;i<notWalkingData.length;i++){
-    console.log('Not Walking File '+i);
-    notWalkingData[i]=parse(notWalkingData[i], {trim: true, auto_parse: true });
+    //console.log(input);
     
-    for (offset=0;offset<notWalkingData[i].length-timeWindow;offset+=timeStep){
-        segment=notWalkingData[i].slice(offset,offset+timeWindow);
-        
-  
-        set[setcounter++]=generateDataForSegment(segment, 0, 100);
-        negativeCounter++;
+    
+    for (var i=0;i<timeStep;i++){
+        inputData[offset+i]=walkingdata[offset+i][2];
+        res[offset+i]=activation[0];
     }
 }
 
-var negativeOnlineData=[];
-for (i=0;i<595;i++){
-    console.log('Not Walking Online File '+i);
-    negativeOnlineData[i]=parse(fs.readFileSync('./data/Online/HMP_Processed/'+(i+1)+'.csv','utf8'), {trim: true, auto_parse: true });
-    for (offset=0;offset<negativeOnlineData[i].length-timeWindow;offset+=timeStep){
-        segment=negativeOnlineData[i].slice(offset,offset+timeWindow);
-        
-        
-        set[setcounter++]=generateDataForSegment(segment, 0, 32);
-        negativeCounter++;
-    }    
+console.log("input=[...");
+for (i=0;i<inputData.length;i++){
+    console.log(inputData[i]+";...");
 }
+console.log("];");
 
-
-//set=JSON.parse(fs.readFileSync('./data/inputdata.json','utf8'));
-
-
-var inputs=set[0].input.length;
-
-console.log(inputs+" inputs "+positiveCounter+" positive samples and "+negativeCounter+ " negative samples");
-
-var Trainer = synaptic.Trainer,
-    Architect = synaptic.Architect;
-var myPerceptron = new Architect.Perceptron(inputs, 20,5, 1);
-var trainer = new Trainer(myPerceptron);
-
-
-fs.writeFileSync("./data/maximalWindowedInputData.json",JSON.stringify(set));
-
-function shuffle(o) { //v1.0
-  for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-  return o;
+console.log("res=[...");
+for (i=0;i<res.length;i++){
+    console.log(res[i]+";...");
 }
+console.log("];");
 
-shuffle(set);
 
-trainer.train(set,{
-    rate: 0.001,
-    iterations: 100000,//set.length*20,
-    error: 0.001,
-    shuffle: true,
-    log: 10,
-    cost: Trainer.cost.MSE,
-    crossValidate: {
-        testSize: 0.4
-    }
-});
 
-/*function(targetValues, outputValues){
-        if (targetValues[0]==0){
-            if (outputValues[0]>0)
-                return outputValues[0]*100;
-            return Math.abs(outputValues[0]);
-        }
-        return Math.abs(1-outputValues[0]);
-        },*/
-
-//myPerceptron.optimize();
-fs.writeFileSync('./data/neuralnetworkWindowed3.json',JSON.stringify(myPerceptron.toJSON()),'utf8');
-
-console.log('trained with '+set.length+' samples. Final test MSE: '+trainer.test(set).error);

@@ -170,7 +170,7 @@ function average2D(arr, wl) {
 }
 
 var parse = require('csv-parse/lib/sync');
-var stepdata=fs.readFileSync('./test/DataNoise1.csv','utf8');
+var stepdata=fs.readFileSync('./data/DataByTheFrog.csv','utf8');
 hikedata=parse(stepdata, {trim: true, auto_parse: true,relax_column_count:true });
 var acc=[],att=[];
 for (var i=0;i<hikedata.length;i++){

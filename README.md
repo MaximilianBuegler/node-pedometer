@@ -23,11 +23,11 @@ Pedometer implementation for node.js
 
 Returns:
 
-  Detect steps in acceleration signal
-    ✓ Signal of long walk (186ms)
-    ✓ Signal of random movement (577ms)
-
-
-  2 passing (772ms)
+    Detect steps in acceleration signal
+      ✓ Signal of long walk (186ms)
+      ✓ Signal of random movement (577ms)
+  
+  
+    2 passing (772ms)
 
 

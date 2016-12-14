@@ -16,20 +16,47 @@
 
 var extractVerticalComponent = require('kinetics').extractVerticalComponent;
 
-var config={
+var defaults={
     windowSize:1, //Length of window in seconds
-    minPeak:3, //minimum magnitude of a steps largest positive peak
+    minPeak:2, //minimum magnitude of a steps largest positive peak
     maxPeak:8, //maximum magnitude of a steps largest positive peak
     minStepTime: 0.4, //minimum time in seconds between two steps
-    peakThreshold: 0.6, //minimum ratio of the current window's maximum to be considered a step
+    peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
+    minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
+    maxStepTime: 0.8 //maximum time between two steps to be considered consecutive
 };
 
 module.exports = {
-    pedometer: function pedometer(accelerometerData, attitudeData, samplingrate){
+    pedometer: function pedometer(accelerometerData, attitudeData, samplingrate, options){
 
-        //Calcualte minimal step time and windowsize from samplingrate
-        var windowSize=config.windowSize*samplingrate,
-            taoMin=config.minStepTime*samplingrate;
+         //set default options. Factor in sampling rate where neccessary
+        var windowSize=defaults.windowSize*samplingrate,
+            taoMin=defaults.minStepTime*samplingrate,
+            taoMax=defaults.maxStepTime*samplingrate,
+            minPeak=defaults.minPeak,
+            maxPeak=defaults.maxPeak,
+            peakThreshold=defaults.peakThreshold,
+            minConsecutiveSteps=defaults.minConsecutiveSteps;
+            
+    
+        //Apply custom options. Factor in sampling rate where neccessary
+        if (options){
+            if (options.windowSize !== undefined)
+                windowSize=options.windowSize*samplingrate;
+            if (options.minStepTime !== undefined)
+                taoMin=options.minStepTime*samplingrate;
+            if (options.maxStepTime !== undefined)
+                taoMax=options.maxStepTime*samplingrate;                                
+            if (options.minPeak !== undefined)
+                minPeak=options.minPeak;
+            if (options.maxPeak !== undefined)
+                maxPeak=options.maxPeak;
+            if (options.peakThreshold !== undefined)
+                peakThreshold=options.peakThreshold;
+            if (options.minConsecutiveSteps !== undefined)
+                minConsecutiveSteps=options.minConsecutiveSteps;                
+        }
+   
             
         //extract vertical component from input signals
         var verticalComponent=extractVerticalComponent(accelerometerData,attitudeData);
@@ -42,6 +69,9 @@ module.exports = {
         
         //index of last step
         var lastPeak=-Infinity;
+        
+        //Number of consecutive Peaks
+        var consecutivePeaks=0;
         
         //offset is half the window size, we can't detect steps in the first and last half seconds of the signal.
         var offset=Math.ceil(windowSize/2);
@@ -71,13 +101,13 @@ module.exports = {
         }
         
         //If maximum exceeds the maximum likely peak for a step, upper bound it.
-        if (windowMax>config.maxPeak){
-            windowMax=config.maxPeak;
+        if (windowMax>maxPeak){
+            windowMax=maxPeak;
         }
         
         //If maximum is lower than minimum likely peak for a step, lower bound it, there's probably no walking happening within the window.
-        else if (windowMax<config.minPeak){
-            windowMax=config.minPeak;
+        else if (windowMax<minPeak){
+            windowMax=minPeak;
         }
 
         //Iterate through signal
@@ -88,10 +118,20 @@ module.exports = {
             //and the last peak is at least taoMin steps before
             //
             //Then add the current index to the steps array and note it down as last peak
-            if (verticalComponent[i]-(windowSum/windowSize)>config.peakThreshold*windowMax &&
+            if (verticalComponent[i]-(windowSum/windowSize)>peakThreshold*windowMax &&
                 verticalComponent[i]>=verticalComponent[i-1] && 
                 verticalComponent[i]<verticalComponent[i+1] &&
-                lastPeak<i-taoMin){
+                lastPeak<i-taoMin)
+            {
+                if (i-lastPeak>=taoMax){
+                    if (consecutivePeaks<minConsecutiveSteps){
+                        steps.pop();
+                    }
+                    consecutivePeaks=1;
+                }
+                else{
+                    consecutivePeaks++;
+                }
                 steps.push(i);
                 lastPeak=i;
             }
@@ -119,17 +159,17 @@ module.exports = {
                 }
                 
                 //If maximum exceeds the maximum likely peak for a step, upper bound it.
-                if (windowMax>config.maxPeak){
-                    windowMax=config.maxPeak;
+                if (windowMax>maxPeak){
+                    windowMax=maxPeak;
                 }
                 
                 //If maximum is lower than minimum likely peak for a step, lower bound it, there's probably no walking happening within the window.
-                else if (windowMax<config.minPeak){
-                    windowMax=config.minPeak;
+                else if (windowMax<minPeak){
+                    windowMax=minPeak;
                 }
             }
         }
-        
+       
         //Return array of steps
         return steps;           
     }

@@ -20,14 +20,26 @@ var assert = require('assert'),
 describe('Detect steps in acceleration signal', function () {
     it('Signal of long walk', function () {
         var data=loadData('test/DataWalking.csv');
-        var steps=pedometer(data.acc,data.att,100);
-        check(steps,[ 90, 133, 191, 258, 316, 369, 431, 476, 537, 601, 656, 713, 768, 830, 882, 999, 1058, 1116, 1166, 1231, 1288, 1349, 1393, 1461, 1518, 1577, 1623, 1693, 1749, 1809, 1856, 1926, 1980, 2043, 2097, 2154, 2207, 2257, 2312, 2370, 2436, 2492, 2547, 2606, 2661, 2716, 2773, 2832, 2927, 2984, 3052, 3165, 3222, 3281, 3393, 3505, 3564, 3613, 3674, 3731, 3842, 3896, 3955, 4011, 4066, 4118, 4280, 4400, 4457, 4515, 4626, 4683, 4738, 4852, 4966, 5128, 5297, 5358, 5415, 5460, 5584, 5630, 5697, 5756, 5812, 5868, 5922, 5967, 6034, 6092, 6201, 6368, 6430, 6483, 6539, 6656, 6716 ],0);
+        var steps=pedometer(data.acc,data.att,100,{ windowSize:1, 
+                                                    minPeak:2, 
+                                                    maxPeak:8, 
+                                                    minStepTime: 0.4, 
+                                                    peakThreshold: 0.5, 
+                                                    minConsecutiveSteps: 3,
+                                                    maxStepTime: 0.8 });
+        check(steps.length,106,0);
     });
     it('Signal of random movement', function () {
         var data=loadData('test/DataNotWalking.csv');
-        var steps=pedometer(data.acc,data.att,100);
-        check(steps,[ 1137, 1209, 1306, 1403, 1576, 2264, 2314, 15176 ],0); //Some false positives detected
-    });    
+        var steps=pedometer(data.acc,data.att,100,{ windowSize:1, 
+                                                    minPeak:2, 
+                                                    maxPeak:8, 
+                                                    minStepTime: 0.4, 
+                                                    peakThreshold: 0.5, 
+                                                    minConsecutiveSteps: 3,
+                                                    maxStepTime: 0.8 });
+        check(steps.length,9,0);
+    });
     
 });
 
@@ -59,4 +71,6 @@ function equalWithThreshold(val1, val2, threshold) {
     return val1==val2 || ((val1 > val2 - threshold) &&
            (val1 < val2 + threshold));
 }
+
+
 

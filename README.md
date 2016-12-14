@@ -2,4 +2,4 @@
 Pedometer implementation for node.js
 
 #Notes
-    Not usable yet. Early development...
+    Uses windowed average peak counting algorithm step detection.

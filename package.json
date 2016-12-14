@@ -20,12 +20,10 @@
     "stepcounter"
   ],
   "dependencies": {
-    "autocorrelation": "0.0.2",
-    "fft-js": "0.0.11",
+    "csv-parse": "^1.1.7",
+    "fs": "0.0.1-security",
     "github": "^6.1.0",
-    "kinetics": "^0.1.0",
-    "stats-lite": "^2.0.3",
-    "synaptic": "^1.0.8"
+    "kinetics": "^0.1.0"
   },
   "scripts": {
     "test": "mocha"

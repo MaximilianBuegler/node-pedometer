@@ -15,8 +15,9 @@ Pedometer implementation for node.js
 
 # Usage
     var pedometer = require('../').pedometer;
-
     var steps=pedometer(accelerometerData,attitudeData,100);
+
+Returns an array of the indices in the input signal where steps occured
 
 # Test
     npm test

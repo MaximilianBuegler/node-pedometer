@@ -80,29 +80,6 @@ module.exports = {
             }
         }
         
-        
-        console.log("VERT=[...");
-        for (i=0;i<verticalComponent.length;i++){
-            console.log(verticalComponent[i]+";...");
-        }
-        console.log("];");
-
-        console.log("STEPS=[...");
-        for (i=0;i<verticalComponent.length;i++){
-            var found=false;
-            for (j=0;j<steps.length;j++){
-                if (steps[j]==i){
-                    console.log("1;...");
-                    found=true;
-                    break;
-                }
-            }
-            if (!found){
-                console.log("0;...");
-            }
-        }
-        console.log("];");
-       
         return steps;           
     }
 };

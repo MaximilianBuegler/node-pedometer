@@ -36,7 +36,7 @@ options provides optional parameters. Default values are:
         minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
         maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
         meanFilterSize: 1, //Amount of smoothing (Values <=1 disable the smoothing)
-        debug:false //Enable output of debugging data in matlab format
+        debug:false //Enable output of debugging data in matlab/octave format
         }
 
 Returns an array of the indices in the input signal where steps occured

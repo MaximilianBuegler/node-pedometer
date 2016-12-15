@@ -72,7 +72,7 @@ Before you run this, make sure to have installed the modules fs and csv-parse.
     }
     
     //Load first test case
-    var data=loadData('test/DataWalking1.csv');      //You might need to adjust the path here
+    var data=loadData('node_modules/pedometer/test/DataWalking1.csv');      //You might need to adjust the path here
     
     //Perform step detection
     var steps=pedometer(data.acc,data.att,100);

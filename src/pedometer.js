@@ -26,7 +26,7 @@ var defaults={
     minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
     maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
     meanFilterSize: 1, //Amount of smoothing
-    debug: false //Enable output of debugging data in matlab format
+    debug: false //Enable output of debugging data in matlab/octave format
 };
 
 module.exports = {
@@ -45,7 +45,7 @@ module.exports = {
      *                                       minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
      *                                       maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
      *                                       meanFilterSize: 1, //Amount of smoothing (Values <=1 disable the smoothing)
-     *                                       debug:false //Enable output of debugging data in matlab format
+     *                                       debug:false //Enable output of debugging data in matlab/octave format
      *                                  }
      * @returns {1D array} of indices where steps were detected
      *
@@ -225,6 +225,7 @@ module.exports = {
             }
         }
 
+        //output data for matlab/octave creating a nice plot of the results.
         if (debug){
             console.log("input=[...");
             for (i=0;i<verticalComponent.length;i++){

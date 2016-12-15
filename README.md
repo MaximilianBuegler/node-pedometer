@@ -2,7 +2,7 @@
 Pedometer implementation for node.js
 
 #Notes
-    Uses a windowed average peak counting algorithm to perform step detection.
+    Uses a windowed average peak counting algorithm to perform low-cost step detection.
     
     Assumes all input data to be 2D arrays
 

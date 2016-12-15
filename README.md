@@ -14,7 +14,7 @@ Pedometer implementation for node.js
     npm install pedometer --save
 
 # Usage
-    var pedometer = require('../').pedometer;
+    var pedometer = require('pedometer').pedometer;
     var steps=pedometer(accelerometerData,attitudeData,samplingrate,options);
     
 accelerometerdata is a time series of 3D acceleration vectors in m/s^2

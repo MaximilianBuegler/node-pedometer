@@ -30,6 +30,26 @@ var defaults={
 };
 
 module.exports = {
+    /**
+     * Detect steps in a 3D accelerometer signal with accompanying attitude signal
+     *
+     * @param {2D array} (linear) accelerometerData 2D array containing time series of acceleration values [[x1, y1, z1],[x2, y2, z2],...] (in m/s^2)
+     * @param {2D array} attitudeData 2D array containing time series of attitude values [[pitch1, roll1, yaw1]. [pitch2, roll2, yaw2],... ] (in Radians)
+     * @param {double} samplingrate number of samples per second
+     * @param {associative array} options={
+     *                                       windowSize:1, //Length of window in seconds
+     *                                       minPeak:2, //minimum magnitude of a steps largest positive peak
+     *                                       maxPeak:8, //maximum magnitude of a steps largest positive peak
+     *                                       minStepTime: 0.4, //minimum time in seconds between two steps
+     *                                       peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
+     *                                       minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
+     *                                       maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
+     *                                       meanFilterSize: 1, //Amount of smoothing (Values <=1 disable the smoothing)
+     *                                       debug:false //Enable output of debugging data in matlab format
+     *                                  }
+     * @returns {1D array} of indices where steps were detected
+     *
+     */
     pedometer: function pedometer(accelerometerData, attitudeData, samplingrate, options){
 
          //set default options. Factor in sampling rate where neccessary

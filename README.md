@@ -35,7 +35,7 @@ options provides optional parameters. Default values are:
         peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
         minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
         maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
-        meanFilterSize: 1 //Amount of smoothing (Values <=1 disable the smoothing)
+        meanFilterSize: 1, //Amount of smoothing (Values <=1 disable the smoothing)
         debug:false //Enable output of debugging data in matlab format
         }
 

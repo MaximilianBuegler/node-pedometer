@@ -43,6 +43,39 @@ Returns an array of the indices in the input signal where steps occured
     
     See src/debug.js and test/test.js for more examples
 
+# Example
+
+Before you run this, make sure to have installed the modules fs and csv-parse.
+
+    var pedometer = require('pedometer').pedometer,
+        fs = require('fs'),
+        parse = require('csv-parse/lib/sync');
+
+    //Function to load Data from csv file
+    function loadData(filename){
+        var data=fs.readFileSync(filename,'utf8');
+        data=parse(data, {trim: true, auto_parse: true});
+        var acc=[],att=[];
+        for (var i=0;i<data.length;i++){
+            acc[i]=data[i].slice(0,3);
+            att[i]=[data[i][4], -data[i][5],data[i][3]];   //Attitude is adjusted to correctly match [ pitch, roll, yaw ]
+        }
+        return {acc:acc,att:att};
+    }
+    
+    //Load first test case
+    var data=loadData('test/DataWalking1.csv');      //You might need to adjust the path here
+    
+    //Perform step detection
+    var steps=pedometer(data.acc,data.att,100);
+    
+    //Print number of detected steps
+    console.log("The algorithm detected "+steps.length+" steps.");
+
+//output:
+
+    The algorithm detected 116 steps.
+
 # Test
     npm test
 

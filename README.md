@@ -72,7 +72,7 @@ Before you run this, make sure to have installed the modules fs and csv-parse.
     //Print number of detected steps
     console.log("The algorithm detected "+steps.length+" steps.");
 
-//output:
+output:
 
     The algorithm detected 116 steps.
 

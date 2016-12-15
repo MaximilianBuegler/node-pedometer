@@ -21,6 +21,7 @@
   ],
   "dependencies": {
     "csv-parse": "^1.1.7",
+    "filters": "^1.0.6",
     "fs": "0.0.1-security",
     "github": "^6.1.0",
     "kinetics": "^0.1.0"

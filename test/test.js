@@ -18,29 +18,68 @@ var assert = require('assert'),
     parse = require('csv-parse/lib/sync');
 
 describe('Detect steps in acceleration signal', function () {
-    it('Signal of long walk', function () {
-        var data=loadData('test/DataWalking.csv');
-        var steps=pedometer(data.acc,data.att,100,{ windowSize:1, 
-                                                    minPeak:2, 
-                                                    maxPeak:8, 
-                                                    minStepTime: 0.4, 
-                                                    peakThreshold: 0.5, 
-                                                    minConsecutiveSteps: 3,
-                                                    maxStepTime: 0.8 });
-        check(steps.length,106,0);
+    it('Test 1 - Signal of walk 1', function () {
+        var data=loadData('test/DataWalking1.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,116,0);
     });
-    it('Signal of random movement', function () {
-        var data=loadData('test/DataNotWalking.csv');
-        var steps=pedometer(data.acc,data.att,100,{ windowSize:1, 
-                                                    minPeak:2, 
-                                                    maxPeak:8, 
-                                                    minStepTime: 0.4, 
-                                                    peakThreshold: 0.5, 
-                                                    minConsecutiveSteps: 3,
-                                                    maxStepTime: 0.8 });
-        check(steps.length,9,0);
+    it('Test 2 - Signal of walk 2', function () {
+        var data=loadData('test/DataWalking2.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,287,0);
     });
-    
+    it('Test 3 - Signal of walk 3', function () {
+        var data=loadData('test/DataWalking3.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,25,0);
+    });
+    it('Test 4 - Signal of walk 4', function () {
+        var data=loadData('test/DataWalking4.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,26,0);
+    });
+    it('Test 5 - Signal of walk 5', function () {
+        var data=loadData('test/DataWalking5.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,477,0);
+    });
+
+    it('Test 6 - Signal of not walking 1', function () {
+        var data=loadData('test/DataNotWalking1.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,8,0);
+    });
+    it('Test 7 - Signal of not walking 2', function () {
+        var data=loadData('test/DataNotWalking2.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,0,0);
+    });
+    it('Test 8 - Signal of not walking 3', function () {
+        var data=loadData('test/DataNotWalking3.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,20,0);
+    });
+    it('Test 9 - Signal of not walking 4', function () {
+        var data=loadData('test/DataNotWalking4.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,0,0);
+    });
+    it('Test 10 - Signal of not walking 5', function () {
+        var data=loadData('test/DataNotWalking5.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,23,0);
+    });
+
 });
 
 function loadData(filename){

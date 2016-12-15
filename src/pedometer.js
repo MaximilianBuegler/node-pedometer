@@ -15,6 +15,7 @@
 
 
 var extractVerticalComponent = require('kinetics').extractVerticalComponent;
+var meanfilter = require('filters').average;
 
 var defaults={
     windowSize:1, //Length of window in seconds
@@ -23,7 +24,9 @@ var defaults={
     minStepTime: 0.4, //minimum time in seconds between two steps
     peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
     minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
-    maxStepTime: 0.8 //maximum time between two steps to be considered consecutive
+    maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
+    meanFilterSize: 1, //Amount of smoothing
+    debug: false //Enable output of debugging data in matlab format
 };
 
 module.exports = {
@@ -36,7 +39,9 @@ module.exports = {
             minPeak=defaults.minPeak,
             maxPeak=defaults.maxPeak,
             peakThreshold=defaults.peakThreshold,
-            minConsecutiveSteps=defaults.minConsecutiveSteps;
+            minConsecutiveSteps=defaults.minConsecutiveSteps,
+            meanFilterSize=defaults.meanFilterSize,
+            debug=defaults.debug;
             
     
         //Apply custom options. Factor in sampling rate where neccessary
@@ -54,19 +59,33 @@ module.exports = {
             if (options.peakThreshold !== undefined)
                 peakThreshold=options.peakThreshold;
             if (options.minConsecutiveSteps !== undefined)
-                minConsecutiveSteps=options.minConsecutiveSteps;                
+                minConsecutiveSteps=options.minConsecutiveSteps;
+            if (options.meanFilterSize !== undefined)
+                meanFilterSize=options.meanFilterSize;                
+            if (options.debug !== undefined)
+                debug=options.debug;                
+                
         }
    
+        //Iteration indices
+        var i,j;
+        
             
         //extract vertical component from input signals
         var verticalComponent=extractVerticalComponent(accelerometerData,attitudeData);
+        
+        //Smooth vertical component if meanFilterSize is larger than 1
+        var smoothedVerticalComponent=verticalComponent;
+        if (meanFilterSize>1){
+            smoothedVerticalComponent=meanfilter(verticalComponent,meanFilterSize);
+        }
         
         //array to output indices where steps occur
         var steps=[];
         
         //array to store current window
         var window=[];
-        
+       
         //index of last step
         var lastPeak=-Infinity;
         
@@ -75,9 +94,6 @@ module.exports = {
         
         //offset is half the window size, we can't detect steps in the first and last half seconds of the signal.
         var offset=Math.ceil(windowSize/2);
-        
-        //Iteration indices
-        var i,j;
         
         //Maximum value in current window
         var windowMax=-Infinity;
@@ -110,29 +126,28 @@ module.exports = {
             windowMax=minPeak;
         }
 
+        //Thresholds array. Only used for debugging
+        var thresholds=[];
+        
         //Iterate through signal
         for (i=offset;i<verticalComponent.length-offset-1;i++){
+            
+            if (debug){
+                thresholds[i]=Math.max(minPeak,peakThreshold*windowMax+windowSum/windowSize);
+            }
             
             //If the current value minus the mean value of the current window is larger than the thresholded maximum
             //and the values decrease after i, but increase prior to i
             //and the last peak is at least taoMin steps before
             //
             //Then add the current index to the steps array and note it down as last peak
-            if (verticalComponent[i]-(windowSum/windowSize)>peakThreshold*windowMax &&
-                verticalComponent[i]>=verticalComponent[i-1] && 
-                verticalComponent[i]<verticalComponent[i+1] &&
+            if (verticalComponent[i]>Math.max(minPeak,peakThreshold*windowMax+windowSum/windowSize) &&
+                smoothedVerticalComponent[i]>=smoothedVerticalComponent[i-1] && 
+                smoothedVerticalComponent[i]>smoothedVerticalComponent[i+1] &&
                 lastPeak<i-taoMin)
             {
-                if (i-lastPeak>=taoMax){
-                    if (consecutivePeaks<minConsecutiveSteps){
-                        steps.pop();
-                    }
-                    consecutivePeaks=1;
-                }
-                else{
-                    consecutivePeaks++;
-                }
-                steps.push(i);
+                if (verticalComponent[i]<maxPeak)
+                    steps.push(i);
                 lastPeak=i;
             }
             
@@ -146,7 +161,7 @@ module.exports = {
             windowSum+=verticalComponent[i+offset]-removed;
             
             //If the removed value was the maximum or the new value exceeds the old maximum, we recheck the window
-            if (removed==windowMax || verticalComponent[i+offset]>windowMax){
+            if (removed>=windowMax || verticalComponent[i+offset]>windowMax){
                 
                 //Intialize new maximum
                 windowMax=-Infinity;
@@ -169,7 +184,58 @@ module.exports = {
                 }
             }
         }
-       
+        
+        //Remove steps that do not fulfile the minimum consecutive steps requirement
+        if (minConsecutiveSteps>1){
+            consecutivePeaks=1;
+            i = steps.length;
+            while (i--) {
+                if (i===0 || steps[i]-steps[i-1]<taoMax){
+                    consecutivePeaks++;
+                }
+                else{
+                    if (consecutivePeaks<minConsecutiveSteps){
+                        steps.splice(i,consecutivePeaks);
+                    }
+                    consecutivePeaks=1;
+                }
+            }
+            if (steps.length<minConsecutiveSteps){
+                steps=[];
+            }
+        }
+
+        if (debug){
+            console.log("input=[...");
+            for (i=0;i<verticalComponent.length;i++){
+                console.log(verticalComponent[i]+";...");
+            }
+            console.log("];");
+            
+            console.log("thresholds=[...");
+            for (i=0;i<verticalComponent.length;i++){
+                console.log(thresholds[i]===undefined?0:thresholds[i]+";...");
+            }
+            console.log("];");
+            
+            console.log("res=[...");
+            for (i=0;i<verticalComponent.length;i++){
+                var found=false;
+                for (j=0;j<steps.length;j++){
+                    if (steps[j]==i){
+                        found=true;
+                    }
+                }
+                console.log((found?1:0)+";...");
+            }
+            console.log("];");
+            
+            //console.log(steps);
+            console.log("nSteps="+steps.length);
+            console.log("figure;");
+            console.log("plot([input thresholds res+10]);");
+            console.log("legend('Vertical component of input','Peak threshold','detected steps');");
+        }
         //Return array of steps
         return steps;           
     }

@@ -5,9 +5,6 @@
  *
  * (c) 2016 Maximilian Bügler
  *
- * Test setup adapted from fft-js in https://github.com/vail-systems/node-fft
- * (c) Vail Systems. Joshua Jung and Ben Bryan. 2015
- *
  *===========================================================================*/
 
 

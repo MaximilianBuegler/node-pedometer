@@ -40,6 +40,8 @@ options provides optional parameters. Default values are:
         }
 
 Returns an array of the indices in the input signal where steps occured
+    
+    See src/debug.js and test/test.js for more examples
 
 # Test
     npm test

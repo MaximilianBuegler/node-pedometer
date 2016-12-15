@@ -70,12 +70,25 @@ Before you run this, make sure to have installed the modules fs and csv-parse.
         //Return arrays
         return {acc:acc,att:att};
     }
-    
+       
     //Load first test case
     var data=loadData('node_modules/pedometer/test/DataWalking1.csv');      //You might need to adjust the path here
     
-    //Perform step detection
-    var steps=pedometer(data.acc,data.att,100);
+    //Define algorithm options (optional). All recommended default values here.
+    var options={
+                    windowSize:1, //Length of window in seconds
+                    minPeak:2, //minimum magnitude of a steps largest positive peak
+                    maxPeak:8, //maximum magnitude of a steps largest positive peak
+                    minStepTime: 0.4, //minimum time in seconds between two steps
+                    peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
+                    minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
+                    maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
+                    meanFilterSize: 1, //Amount of smoothing (Values <=1 disable the smoothing)
+                    debug:false //Enable output of debugging data in matlab format
+    };
+            
+    //Perform step detection. Leaving away ,options here (recommended), will use the default settings as specified above.
+    var steps=pedometer(data.acc,data.att,100,options);
     
     //Print number of detected steps
     console.log("The algorithm detected "+steps.length+" steps.");

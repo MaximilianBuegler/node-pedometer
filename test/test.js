@@ -1,7 +1,7 @@
 /*===========================================================================*\
  * Pedometer algorithm for node.js
  *
- * Uses windowed average peak counting algorithm step detection.
+ * Performs 10 unit tests on different sample files
  *
  * (c) 2016 Maximilian Bügler
  *

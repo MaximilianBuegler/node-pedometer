@@ -1,6 +1,6 @@
 {
   "name": "pedometer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Javascript implementation of a pedometer",
   "license": "MIT",
   "homepage": "https://github.com/MaximilianBuegler/node-pedometer",

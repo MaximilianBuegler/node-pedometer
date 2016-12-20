@@ -28,7 +28,7 @@ describe('Detect steps in acceleration signal', function () {
         var data=loadData('test/DataWalking2.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,287,0);
+        check(steps.length,292,0);
     });
     it('Test 3 - Signal of walk 3', function () {
         var data=loadData('test/DataWalking3.csv');
@@ -40,32 +40,32 @@ describe('Detect steps in acceleration signal', function () {
         var data=loadData('test/DataWalking4.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,26,0);
+        check(steps.length,27,0);
     });
     it('Test 5 - Signal of walk 5', function () {
         var data=loadData('test/DataWalking5.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,477,0);
+        check(steps.length,483,0);
     });
 
     it('Test 6 - Signal of not walking 1', function () {
         var data=loadData('test/DataNotWalking1.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,8,0);
+        check(steps.length,16,0);
     });
     it('Test 7 - Signal of not walking 2', function () {
         var data=loadData('test/DataNotWalking2.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,0,0);
+        check(steps.length,10,0);
     });
     it('Test 8 - Signal of not walking 3', function () {
         var data=loadData('test/DataNotWalking3.csv');
         var steps=pedometer(data.acc,data.att,100);
         console.log("The algorithm detected "+steps.length+" steps.");
-        check(steps.length,20,0);
+        check(steps.length,28,0);
     });
     it('Test 9 - Signal of not walking 4', function () {
         var data=loadData('test/DataNotWalking4.csv');
@@ -79,7 +79,18 @@ describe('Detect steps in acceleration signal', function () {
         console.log("The algorithm detected "+steps.length+" steps.");
         check(steps.length,23,0);
     });
-
+    it('Test 11 - Signal of mixed action 1', function () {
+        var data=loadData('test/DataMixed1.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,68,0);
+    });    
+    it('Test 12 - Signal of mixed action 2', function () {
+        var data=loadData('test/DataMixed2.csv');
+        var steps=pedometer(data.acc,data.att,100);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,46,0);
+    });
 });
 
 function loadData(filename){

@@ -21,7 +21,7 @@ var defaults={
     windowSize:1, //Length of window in seconds
     minPeak:2, //minimum magnitude of a steps largest positive peak
     maxPeak:8, //maximum magnitude of a steps largest positive peak
-    minStepTime: 0.4, //minimum time in seconds between two steps
+    minStepTime: 0.3, //minimum time in seconds between two steps
     peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
     minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
     maxStepTime: 0.8, //maximum time between two steps to be considered consecutive

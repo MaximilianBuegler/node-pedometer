@@ -35,7 +35,9 @@ var dataSets=[  loadData('test/DataNotWalking1.csv'),
                 loadData('test/DataWalking2.csv'),
                 loadData('test/DataWalking3.csv'),
                 loadData('test/DataWalking4.csv'),
-                loadData('test/DataWalking5.csv')];
+                loadData('test/DataWalking5.csv'),
+                loadData('test/DataMixed1.csv'),
+                loadData('test/DataMixed2.csv')];
 
 var data=dataSets[9]; //Select dataset
 

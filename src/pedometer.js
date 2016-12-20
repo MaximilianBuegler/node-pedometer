@@ -16,14 +16,16 @@
 
 var extractVerticalComponent = require('kinetics').extractVerticalComponent;
 var meanfilter = require('filters').average;
+var peakClassifier = require('./peakClassifier');
+
 
 var defaults={
     windowSize:1, //Length of window in seconds
     minPeak:2, //minimum magnitude of a steps largest positive peak
     maxPeak:8, //maximum magnitude of a steps largest positive peak
-    minStepTime: 0.4, //minimum time in seconds between two steps
+    minStepTime: 0.3, //minimum time in seconds between two steps
     peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
-    minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
+    minConsecutiveSteps: 5, //minimum number of consecutive steps to be counted
     maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
     meanFilterSize: 1, //Amount of smoothing
     debug: false //Enable output of debugging data in matlab/octave format
@@ -166,7 +168,18 @@ module.exports = {
                 smoothedVerticalComponent[i]>smoothedVerticalComponent[i+1] &&
                 lastPeak<i-taoMin)
             {
-                if (verticalComponent[i]<maxPeak)
+                /*var surrMax=-Infinity;
+                //var nextMax=Infinity;
+                for (j=1;j<0.3*samplingrate;j++){
+                    if (smoothedVerticalComponent[i-j]>surrMax){
+                        surrMax=smoothedVerticalComponent[i-j];
+                    }
+                    if (smoothedVerticalComponent[i+j]>surrMax){
+                        surrMax=smoothedVerticalComponent[i+j];
+                    }                    
+                }*/
+                
+                if (verticalComponent[i]<maxPeak )//&& verticalComponent[i]>surrMax)
                     steps.push(i);
                 lastPeak=i;
             }
@@ -224,7 +237,22 @@ module.exports = {
                 steps=[];
             }
         }
+        
+/*        var peakClass=[];
+        //Remove false positive peaks by neural network classification
+        i = steps.length;
+        var stepStart,stepEnd;
+        while (i--) {
+            stepStart=steps[i]-samplingrate*0.25;
+            stepEnd=steps[i]+samplingrate*0.25;
+            peakClass[i]=peakClassifier(verticalComponent,stepStart,stepEnd)[0];
+            console.log(peakClass[i]);
+            if (peakClassifier(verticalComponent,stepStart,stepEnd)[0]<0.2){
+                steps.splice(i,1);
+            }            
+        }*/
 
+        //console.log(steps.length);
         //output data for matlab/octave creating a nice plot of the results.
         if (debug){
             console.log("input=[...");
@@ -245,9 +273,10 @@ module.exports = {
                 for (j=0;j<steps.length;j++){
                     if (steps[j]==i){
                         found=true;
+                        break;
                     }
                 }
-                console.log((found?1:0)+";...");
+                console.log(found?1:0+";...");
             }
             console.log("];");
             

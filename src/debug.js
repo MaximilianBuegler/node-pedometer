@@ -19,7 +19,9 @@ function loadData(filename){
     var acc=[],att=[];
     for (var i=0;i<data.length;i++){
         acc[i]=data[i].slice(0,3);
-        att[i]=[data[i][4], -data[i][5],data[i][3]];  
+        //acc[i]=[data[i][0], data[i][1],-data[i][2]];
+        att[i]=[data[i][4], -data[i][5],data[i][3]];
+        //att[i]=[data[i][3], data[i][4],data[i][5]];
     }
     return {acc:acc,att:att};
 }
@@ -35,8 +37,10 @@ var dataSets=[  loadData('test/DataNotWalking1.csv'),
                 loadData('test/DataWalking2.csv'),
                 loadData('test/DataWalking3.csv'),
                 loadData('test/DataWalking4.csv'),
-                loadData('test/DataWalking5.csv')];
+                loadData('test/DataWalking5.csv'),
+                loadData('test/DataMixed1.csv'),
+                loadData('test/DataMixed2.csv')];
 
-var data=dataSets[9]; //Select dataset
+var data=dataSets[11]; //Select dataset
 
 pedometer(data.acc,data.att,100,{debug:true});  //Debug: true --> Prints matlab readable output to console

@@ -1,7 +1,7 @@
 # node-pedometer
 Pedometer implementation for node.js
 
-# Build status
+# Build status 
 
 [![Build Status](https://travis-ci.org/MaximilianBuegler/node-pedometer.svg?branch=master)](https://travis-ci.org/MaximilianBuegler/node-pedometer)
 [![Coverage Status](https://coveralls.io/repos/github/MaximilianBuegler/node-pedometer/badge.svg?branch=master)](https://coveralls.io/github/MaximilianBuegler/node-pedometer?branch=master)

@@ -91,6 +91,23 @@ describe('Detect steps in acceleration signal', function () {
         console.log("The algorithm detected "+steps.length+" steps.");
         check(steps.length,46,0);
     });
+    it('Test 13 - Custom parameters', function () {
+        var data=loadData('test/DataMixed2.csv');
+	var options={
+    		windowSize:1, //Length of window in seconds
+		minPeak:2, //minimum magnitude of a steps largest positive peak
+   		maxPeak:8, //maximum magnitude of a steps largest positive peak
+    		minStepTime: 0.3, //minimum time in seconds between two steps
+    		peakThreshold: 0.5, //minimum ratio of the current window's maximum to be considered a step
+    		minConsecutiveSteps: 3, //minimum number of consecutive steps to be counted
+    		maxStepTime: 0.8, //maximum time between two steps to be considered consecutive
+    		meanFilterSize: 2, //Amount of smoothing
+   		debug: true //Enable output of debugging data in matlab/octave format
+	};
+        var steps=pedometer(data.acc,data.att,100,options);
+        console.log("The algorithm detected "+steps.length+" steps.");
+        check(steps.length,43,0);
+    });
 });
 
 function loadData(filename){
